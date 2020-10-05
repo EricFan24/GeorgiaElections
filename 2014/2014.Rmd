@@ -1,0 +1,102 @@
+---
+title: '2014'
+author: "Eric Fan"
+date: "December 6, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(data.table)
+library(tidyverse)
+library(plyr)
+
+```
+
+```{r}
+registrations_2014 <- fread("voters_registration_201504-002.csv",select=c(2,3,18,19,23))
+
+```
+
+```{r}
+registrations_2014$race <- as.factor(registrations_2014$race)
+registrations_2014$gender <- as.factor(registrations_2014$gender)
+registrations_2014$county_precinct_id <- as.factor(registrations_2014$county_precinct_id)
+registrations_2014$county_code <- as.factor(registrations_2014$county_code)
+voter_history_2014$election_type <- as.factor(voter_history_2014$election_type)
+
+general_election_2014 <- voter_history_2014 %>%
+  filter(election_type == "3")
+
+joined_2014<- left_join(registrations_2014,general_election_2014, by = "registration_num")
+
+###
+joined_2014 %>%
+  filter(is.na(county_code))
+  
+###
+
+registered_2014 <- joined_2014 %>%
+  group_by(county_code,county_precinct_id,race, gender) %>%
+  summarise(registered = n()) %>%
+  filter(race != "M" & race != "F" & race != "N" & race != "AH" & race != "" & gender != "06" & gender != "") %>%
+  unite(temp, race,gender) %>%
+  spread(key = 'temp',value = 'registered') %>%
+  rename(black_male_reg = BH_M,black_female_reg = BH_F, black_unknown_reg = BH_O,
+         white_male_reg = WH_M,white_female_reg = WH_F, white_unknown_reg = WH_O,
+         native_male_reg = AI_M,native_female_reg = AI_F,native_unknown_reg = AI_O,
+         hisp_male_reg = HP_M,hisp_female_reg = HP_F, hisp_unknown_reg = HP_O,
+         asiapi_male_reg = AP_M,asiapi_female_reg = AP_F, asiapi_unknown_reg = AP_O,
+         other_male_reg = OT_M,other_female_reg = OT_F, other_unknown_reg = OT_O,
+         unknown_male_reg = U_M,unknown_female_reg = U_F, unknown_reg = U_O)
+  
+total_reg <- joined_2014 %>%
+  group_by(county_code,county_precinct_id) %>%
+  summarise(total_reg = n())
+
+voted_2014<- joined_2014 %>%
+  filter(!is.na(election_type)) %>%
+  group_by(county_code,county_precinct_id,race, gender) %>%
+  summarise(voted = n() )%>%
+  filter(race != "M" & race != "F" & race != "N" & race != "AH" & race != "" & gender != "06" & gender != "") %>%
+  unite(temp, race,gender) %>%
+  spread(key = 'temp',value = 'voted') %>%
+  rename(black_male_voted = BH_M,black_female_voted = BH_F, black_unknown_voted = BH_O,
+         white_male_voted = WH_M,white_female_voted = WH_F, white_unknown_voted = WH_O,
+         native_male_voted = AI_M,native_female_voted = AI_F,native_unknown_voted = AI_O,
+         hisp_male_voted = HP_M,hisp_female_voted = HP_F, hisp_unknown_voted = HP_O,
+         asiapi_male_voted = AP_M,asiapi_female_voted = AP_F, asiapi_unknown_voted = AP_O,
+         other_male_voted = OT_M,other_female_voted = OT_F, other_unknown_voted = OT_O,
+         unknown_male_voted = U_M,unknown_female_voted = U_F, unknown_voted = U_O)
+
+total_voted <- joined_2014 %>%
+  filter(!is.na(election_type)) %>%
+  group_by(county_code,county_precinct_id) %>%
+  summarise(total_voted = n())
+
+
+
+turnout_2014 <- full_join(registered_2014, voted_2014,by=c("county_code","county_precinct_id"))
+turnout_2014 <- full_join(turnout_2014, total_reg,by=c("county_code","county_precinct_id"))
+turnout_2014 <- full_join(turnout_2014, total_voted,by=c("county_code","county_precinct_id"))
+turnout_2014 <- turnout_2014%>%
+  mutate(total_percent = total_voted / total_reg * 100)
+
+turnout_2014$year <- 2014
+TURNOUT_2012$year <- 2012
+TURNOUT_2016$year <- 2016
+TURNOUT_2018$year <- 2018
+
+turnout_2014<-turnout_2014 %>%
+  rename(precID = county_precinct_id,
+         countyName = county_code)
+
+TURNOUT_12_14_16_18 <- rbind.fill(TURNOUT_2012,turnout_2014,TURNOUT_2016,TURNOUT_2018)
+
+
+
+write.csv(TURNOUT_12_14_16_18,"TURNOUT_12_14_16_18.csv",row.names = F)
+```
