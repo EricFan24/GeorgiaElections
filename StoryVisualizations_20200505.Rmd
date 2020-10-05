@@ -1,0 +1,180 @@
+---
+title: "20200505_StoryVisualizations"
+author: "Eric Fan"
+date: "May 5, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(scales)
+```
+
+```{r}
+STATEWIDE_20200502$County <- as.character(STATEWIDE_20200502$County)
+
+STATEWIDE_20200502[STATEWIDE_20200502 == "BEN HILL"] <- "BEN_HILL"
+STATEWIDE_20200502[STATEWIDE_20200502 == "JEFF DAVIS"] <- "JEFF_DAVIS"
+
+
+Active_Voters_April_1_2020 <- Active_Voters_April_1_2020 %>%
+  rename('County' = `COUNTY NAME`)
+
+Active_Voters_April_1_2020$`TOTAL VOTERS` <- as.numeric(Active_Voters_April_1_2020$`TOTAL VOTERS`)
+Active_Voters_April_1_2020$County <- as.character(Active_Voters_April_1_2020$County)
+Active_Voters_April_1_2020[Active_Voters_April_1_2020 == "BEN HILL"] <- "BEN_HILL"
+Active_Voters_April_1_2020[Active_Voters_April_1_2020 == "JEFF DAVIS"] <- "JEFF_DAVIS"
+
+```
+
+```{r}
+ActiveVoters2020 <- Active_Voters_April_1_2020 %>%
+  select(County, `TOTAL VOTERS`)
+```
+
+```{r}
+AbsenteeAPP_ACCEPTED_COUNTY_20200502 <- STATEWIDE_20200502 %>%
+  filter(Application.Status == 'A') %>%
+  group_by(County) %>%
+  summarise(Application.Count = n())
+
+temp <- full_join(AbsenteeAPP_ACCEPTED_COUNTY_20200502,ActiveVoters2020)
+temp <- temp %>%
+  mutate(AbsenteePorportion = round(Application.Count / `TOTAL VOTERS` * 100, 1)) %>%
+  mutate(`Total Active Voters` = `TOTAL VOTERS` - Application.Count)
+
+class(temp$`TOTAL VOTERS`)
+```
+
+# visualize
+```{r}
+temp %>%
+  filter(County == 'COBB' |County == 'DEKALB' |County == 'GWINNETT' |County == 'CHEROKEE' |County == 'CHATHAM' |County == 'FULTON' |County == 'FORSYTH' |County == 'HENRY' |County == 'RICHMOND' |County == 'PAULDING' ) %>%
+  mutate(County = fct_reorder(County, Application.Count)) %>%
+  ggplot(aes(x = County)) +
+  geom_col(aes(y = `Total Active Voters`), fill = 'grey',position = 'stack') +
+  geom_col(aes(y =  Application.Count), fill = 'red', position = 'stack') +
+  geom_text(aes(y = Application.Count, label = AbsenteePorportion)) +
+  coord_flip() +
+  labs(x = "",
+       y = "",
+       title = "TITLE") 
+
+# highest raw numbers
+temp %>%
+  filter(County == 'COBB' |County == 'DEKALB' |County == 'GWINNETT' |County == 'CHEROKEE' |County == 'CHATHAM' |County == 'FULTON' |County == 'FORSYTH' |County == 'HENRY' |County == 'RICHMOND' |County == 'PAULDING' ) %>%
+  mutate(County = fct_reorder(County, Application.Count)) %>%
+  ggplot(aes(x = County)) +
+  geom_col(aes(y = Application.Count), fill = '#0A81C4') +
+  geom_text(aes(y = Application.Count, 
+                label = format(Application.Count, big.mark = ",", scientific = FALSE)), 
+                hjust = 1.2,
+            color = 'white') +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Total number of absentee applications approved as of May 2",
+       x = "",
+       y = "") + 
+  scale_y_continuous(labels = comma) +
+  theme(panel.background=element_rect(fill="#F0F0F0")) +
+  theme(plot.background=element_rect(fill="#F0F0F0")) +
+  theme(panel.border=element_rect(colour="#F0F0F0")) +
+  theme(plot.title=element_text(face="bold",hjust=1,vjust=2,colour="#3C3C3C",size=13))+
+  theme(axis.text.x=element_text(size=11,colour="#535353",face="bold")) +
+  theme(axis.text.y=element_text(size=11,colour="#535353",face="bold")) +
+  geom_hline(yintercept=0,size=1.2,colour="#535353") +
+  theme(plot.margin = unit(c(1, 1, .5, .7), "cm"))
+
+ggsave(filename="Total number of absentee applications as of May 2.png",
+       dpi=700,
+       width = 15,
+       height  = 10,
+       units = 'cm')
+
+# highest porptions
+temp %>%
+  filter(County == 'UNION' |County == 'HENRY' |County == 'BAKER' |County == 'CHATHAM' |County == 'COBB' |County == 'DEKALB' |County == 'GWINNETT' |County == 'FULTON' |County == 'DOUGHERTY' |County == 'CHEROKEE' ) %>%
+  mutate(County = fct_reorder(County, AbsenteePorportion)) %>%
+  ggplot(aes(x = County)) +
+  geom_col(aes(y = AbsenteePorportion), fill = '#0A81C4') +
+  geom_text(aes(y = AbsenteePorportion, 
+                label = format(AbsenteePorportion, big.mark = ",", scientific = FALSE)), 
+                hjust = 1.2,
+                color = 'white') +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "Approved absentee applications as a percentage of active voters",
+       x = "",
+       y = "") + 
+  scale_y_continuous(labels = comma) +
+  theme(panel.background=element_rect(fill="#F0F0F0")) +
+  theme(plot.background=element_rect(fill="#F0F0F0")) +
+  theme(panel.border=element_rect(colour="#F0F0F0")) +
+  theme(plot.title=element_text(face="bold",hjust=0.85,vjust=2,colour="#3C3C3C",size=13))+
+  theme(axis.text.x=element_text(size=11,colour="#535353",face="bold")) +
+  theme(axis.text.y=element_text(size=11,colour="#535353",face="bold")) +
+  geom_hline(yintercept=0,size=1.2,colour="#535353") +
+  theme(plot.margin = unit(c(1, 1, .5, .7), "cm"))
+
+ggsave(filename="Approved absentee applications as a percentage of active voters.png",
+       dpi=700,
+       width = 15,
+       height  = 10,
+       units = 'cm')
+
+```
+
+# Difference from 2018
+```{r}
+1, 8, 9, 11, 14
+
+AbsenteeAPP_ACCEPTED_CONGESSIONAL.DISTRICT_PARTY_20200502$CNG <- as.factor(AbsenteeAPP_ACCEPTED_CONGESSIONAL.DISTRICT_PARTY_20200502$CNG)
+
+temp2 <- AbsenteeAPP_ACCEPTED_CONGESSIONAL.DISTRICT_PARTY_20200502 %>%
+  filter(CNG == 1  |CNG == 9 |CNG == 11 |CNG == 14 ) %>%
+  mutate(Democratic = DEMOCRAT2020 - DEMOCRAT2018,
+         Republican = REPUBLICAN2020 - REPUBLICAN2018) %>%
+  gather(Party, `Difference from 2018`,Democratic:Republican)
+
+
+temp2 %>%
+  ggplot(aes(x = fct_rev(CNG))) +
+  geom_col(aes(y = `Difference from 2018`,
+               fill = Party),
+           position = 'dodge') +
+  scale_fill_manual(values = c("Democratic" = "#0A81C4", "Republican" = "#EE3A24")) +
+  geom_text(aes(y = `Difference from 2018`, group = Party,
+                label = format(`Difference from 2018`, big.mark = ",", scientific = FALSE)), 
+                hjust = 1.2,
+            color = 'white',
+            position = position_dodge(width = 1)) +
+  theme_bw() +
+  labs(title = "Increase in approved absentee applications\nover total votes cast in 2018 primary",
+       x = "",
+       y = "",
+       fill = "") + 
+  coord_flip()+
+  scale_y_continuous(labels = comma) +
+  scale_x_discrete(labels = c("1" = "GA1", "9" =  "GA9", "11" = "GA11", "14" = "GA14")) +
+  theme(panel.background=element_rect(fill="#F0F0F0")) +
+  theme(legend.background =element_rect(fill="#F0F0F0")) +
+  theme(plot.background=element_rect(fill="#F0F0F0")) +
+  theme(panel.border=element_rect(colour="#F0F0F0")) +
+  theme(plot.title=element_text(face="bold",hjust=0,vjust=2,colour="#3C3C3C",size=14))+
+  theme(axis.text.x=element_text(size=11,colour="#535353",face="bold")) +
+  theme(axis.text.y=element_text(size=11,colour="#535353",face="bold")) +
+  geom_hline(yintercept=0,size=1.2,colour="#535353") +
+  theme(plot.margin = unit(c(1, 1, .5, .7), "cm"))
+
+ggsave(filename="Increase over 2018 primary.png",
+       dpi=700,
+       width = 15,
+       height  = 10,
+       units = 'cm')
+```
+
+
