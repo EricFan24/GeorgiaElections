@@ -1,4 +1,4 @@
-# GoergiaElections
+# GeorgiaElections
 
 Published stories:
 * “At Least 8,000 Absentee Ballots In Georgia Rejected For Coming In Late.” Georgia Public Broadcasting, July 10, 2020. 
