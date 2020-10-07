@@ -1,0 +1,178 @@
+---
+title: "test"
+author: "Eric Fan"
+date: "October 8, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+#Notes: 
+ 
+## All spaces " " in precName and precID have been subsituted with "_" in order to read text table properly.
+## Not all counties use unique precName-s. Please use BOTH precName and precID to uniquely identify each precinct. 
+## "UNKNOWN" means precName or precID is blank on original pdf.
+## All "," in numbers have been deleted in order to store as numeric data.
+
+
+```{r}
+my.read.text <- function(fileName) {
+  
+  x <- read.table(fileName, header = FALSE, fill = TRUE)
+  
+  x <- subset(x, (x$V2 != "%" & x$V1 != "TOTALS" ))
+  
+  x <- x %>%
+    mutate_all(funs(str_replace(.,",","")))
+  
+  for (i in 2:29) {
+    x[ , i] <- as.numeric(as.character(x[ , i]))
+  }
+  
+  colnames(x) <- c("precName", "black_female_reg","black_female_voted","black_male_reg","black_male_voted",
+                         "white_female_reg","white_female_voted","white_male_reg","white_male_voted",
+                         "asiapi_female_reg","asiapi_female_voted","asiapi_male_reg","asiapi_male_voted",
+                         "hisp_female_reg","hisp_female_voted","hisp_male_reg","hisp_male_voted",
+                         "native_female_reg","native_female_voted","native_male_reg","native_male_voted",
+                         "other_female_reg","other_female_voted","other_male_reg","other_male_voted",
+                         "unknown_reg","unknown_voted","total_reg","total_voted", "precID")
+  
+  x$countyName <- gsub("[.text]", "", fileName)
+    
+  return(x)
+}
+
+```
+
+```{r}
+APPLING <- my.read.text("APPLING.txt")
+ATKINSON <- my.read.text("ATKINSON.txt")
+BACON <- my.read.text("BACON.txt")
+BAKER <- my.read.text("BAKER.txt")
+BALDWIN <- my.read.text("BALDWIN.txt")
+BANKS <- my.read.text("BANKS.txt")
+BARROW <- my.read.text("BARROW.txt")
+BARTOW<- my.read.text("BARTOW.txt")
+BEN_HILL <- my.read.text("BEN_HILL.txt")
+BERRIEN <- my.read.text("BERRIEN.txt")
+BIBB <- my.read.text("BIBB.txt")
+BLECKLEY <- my.read.text("BLECKLEY.txt")
+BRANTLEY<- my.read.text("BRANTLEY.txt")
+BROOKS <- my.read.text("BROOKS.txt")
+BRYAN <- my.read.text("BRYAN.txt")
+BULLOCH <- my.read.text("BULLOCH.txt")
+BURKE <- my.read.text("BURKE.txt")
+BUTTS <- my.read.text("BUTTS.txt")
+CALHOUN <- my.read.text("CALHOUN.txt")
+CAMDEN <- my.read.text("CAMDEN.txt")
+CANDLER <- my.read.text("CANDLER.txt")
+CARROLL<- my.read.text("CARROLL.txt")
+CATOOSA<- my.read.text("CATOOSA.txt")
+CHARLTON<- my.read.text("CHARLTON.txt")
+CHATHAM<- my.read.text("CHATHAM.txt")
+CHATTAHOOCHEE<- my.read.text("CHATTAHOOCHEE.txt")
+CHATTOOGA<- my.read.text("CHATTOOGA.txt")
+CHEROKEE<- my.read.text("CHEROKEE.txt")
+CLARKE<- my.read.text("CLARKE.txt")
+CLAY<- my.read.text("CLAY.txt")
+CLAYTON<- my.read.text("CLAYTON.txt")
+CLINCH<- my.read.text("CLINCH.txt")
+COBB<- my.read.text("COBB.txt")
+COFFEE<- my.read.text("COFFEE.txt")
+COLQUITT<- my.read.text("COLQUITT.txt")
+COLUMBIA<- my.read.text("COLUMBIA.txt")
+COOK<- my.read.text("COOK.txt")
+COWETA<- my.read.text("COWETA.txt")
+CRAWFORD<- my.read.text("CRAWFORD.txt")
+CRISP<- my.read.text("CRISP.txt")
+DADE<- my.read.text("DADE.txt")
+DAWSON<- my.read.text("DAWSON.txt")
+DECATUR<- my.read.text("DECATUR.txt")
+DEKALB<- my.read.text("DEKALB.txt")
+DODGE<- my.read.text("DODGE.txt")
+DOOLY<- my.read.text("DOOLY.txt")
+DOUGHERTY<- my.read.text("DOUGHERTY.txt")
+DOUGLAS<- my.read.text("DOUGLAS.txt")
+EARLY<- my.read.text("EARLY.txt")
+ECHOLS<- my.read.text("ECHOLS.txt")
+EFFINGHAM<- my.read.text("EFFINGHAM.txt")
+ELBERT<- my.read.text("ELBERT.txt")
+EMANUEL<- my.read.text("EMANUEL.txt")
+
+
+
+#write.csv(APPLING,"APPLING.csv",row.names = F)
+
+TURNOUT_2012 <-rbind(APPLING,ATKINSON,BACON,BAKER,BALDWIN,BANKS,BARROW,BARTOW,BEN_HILL,BERRIEN,
+                     BIBB,BLECKLEY,BRANTLEY,BROOKS,BRYAN,BULLOCH,BURKE,BUTTS,CALHOUN,CAMDEN,
+                     CANDLER,CATOOSA,CHARLTON,CHATHAM,CHATTAHOOCHEE,CHATTOOGA,CHEROKEE,CLARKE,CLAY,CLAYTON,
+                     CLINCH,COBB,COFFEE,COLQUITT,COLUMBIA,COOK,COWETA,CRAWFORD,CRISP,DAWSON,
+                     DECATUR,DEKALB,DODGE,DOOLY,DOUGHERTY,DOUGLAS,EARLY,ECHOLS,EFFINGHAM,ELBERT,
+                     EMANUEL,
+                     my.read.text("CARROLL.txt"),my.read.text("DADE.txt"),
+                     my.read.text("EVANS.txt"),my.read.text("FANNIN.txt"),my.read.text("FAYETTE.txt"),
+                     my.read.text("FLOYD.txt"),my.read.text("FORSYTH.txt"),my.read.text("FRANKLIN.txt"),
+                     my.read.text("FULTON.txt"),my.read.text("GILMER.txt"),my.read.text("GLASCOCK.txt"),
+                     my.read.text("GLYNN.txt"),my.read.text("GORDON.txt"),my.read.text("GRADY.txt"),
+                     my.read.text("GREENE.txt"),my.read.text("GWINNETT.txt"),my.read.text("HABERSHAM.txt"),
+                     my.read.text("HALL.txt"),my.read.text("HANCOCK.txt"),my.read.text("HARALSON.txt"),
+                     my.read.text("HARRIS.txt"),my.read.text("HART.txt"),my.read.text("HEARD.txt"),
+                     my.read.text("HENRY.txt"),my.read.text("HOUSTON.txt"),my.read.text("IRWIN.txt"),
+                     my.read.text("JACKSON.txt"),my.read.text("JASPER.txt"),my.read.text("JEFF_DAVIS.txt"),
+                     my.read.text("JEFFERSON.txt"),my.read.text("JENKINS.txt"),my.read.text("JOHNSON.txt"),
+                     my.read.text("JONES.txt"),my.read.text("LAMAR.txt"),my.read.text("LANIER.txt"),
+                     my.read.text("LAURENS.txt"),my.read.text("LEE.txt"),my.read.text("LIBERTY.txt"),
+                     my.read.text("LINCOLN.txt"),my.read.text("LONG.txt"),my.read.text("LOWNDES.txt"),
+                     my.read.text("LUMPKIN.txt"),my.read.text("MACON.txt"),my.read.text("MADISON.txt"),
+                     my.read.text("MARION.txt"),my.read.text("MCDUFFIE.txt"),my.read.text("MCINTOSH.txt"),
+                     my.read.text("MERIWETHER.txt"),my.read.text("MILLER.txt"),my.read.text("MITCHELL.txt"),
+                     my.read.text("MONROE.txt"),my.read.text("MONTGOMERY.txt"),my.read.text("MORGAN.txt"),
+                     my.read.text("MURRAY.txt"),my.read.text("MUSCOGEE.txt"),my.read.text("NEWTON.txt"),
+                     my.read.text("OCONEE.txt"),my.read.text("OGLETHORPE.txt"),my.read.text("PAULDING.txt"),
+                     my.read.text("PEACH.txt"),my.read.text("PICKENS.txt"),my.read.text("PIERCE.txt"),
+                     my.read.text("PIKE.txt"),my.read.text("POLK.txt"),my.read.text("PULASKI.txt"),
+                     my.read.text("PUTNAM.txt"),my.read.text("QUITMAN.txt"),my.read.text("RABUN.txt"),
+                     my.read.text("RANDOLPH.txt"),my.read.text("RICHMOND.txt"),my.read.text("ROCKDALE.txt"),
+                     my.read.text("SCHLEY.txt"),my.read.text("SCREVEN.txt"),my.read.text("SEMINOLE.txt"),
+                     my.read.text("SPALDING.txt"),my.read.text("STEPHENS.txt"),my.read.text("STEWART.txt"),
+                     my.read.text("SUMTER.txt"),my.read.text("TALBOT.txt"),my.read.text("TALIAFERRO.txt"),
+                     my.read.text("TATTNALL.txt"),my.read.text("TAYLOR.txt"),my.read.text("TELFAIR.txt"),
+                     my.read.text("TERRELL.txt"),my.read.text("THOMAS.txt"),my.read.text("TIFT.txt"),
+                     my.read.text("TOOMBS.txt"),my.read.text("TOWNS.txt"),my.read.text("TREUTLEN.txt"),
+                     my.read.text("TROUP.txt"),my.read.text("TURNER.txt"),my.read.text("TWIGGS.txt"),
+                     my.read.text("UNION.txt"),my.read.text("UPSON.txt"),my.read.text("WALKER.txt"),
+                     my.read.text("WALTON.txt"),my.read.text("WARE.txt"),my.read.text("WARREN.txt"),
+                     my.read.text("WASHINGTON.txt"),my.read.text("WAYNE.txt"),my.read.text("WEBSTER.txt"),
+                     my.read.text("WHEELER.txt"),my.read.text("WHITE.txt"),my.read.text("WHITFIELD.txt"),
+                     my.read.text("WILCOX.txt"),my.read.text("WILKES.txt"),my.read.text("WILKINSON.txt"),
+                     my.read.text("WORTH.txt"))
+
+TURNOUT_2012[TURNOUT_2012 == "BEN_HILL"] <- "BEN HILL"
+
+write.csv(TURNOUT_2012,"TURNOUT_2012.csv",row.names = F)
+write.table(TURNOUT_2012,"TURNOUT_2012.txt")
+
+```
+
+# fixing the # problem
+
+```{r}
+CHATHAM<- my.read.text("CHATHAM.txt")
+PEACH<- my.read.text("PEACH.txt")
+STEPHENS<- my.read.text("STEPHENS.txt")
+WILCOX<- my.read.text("WILCOX.txt")
+LEE<- my.read.text("LEE.txt")
+
+LEE$year <- 2012
+CHATHAM$year <- 2012
+PEACH$year <- 2012
+STEPHENS$year <- 2012
+WILCOX$year <- 2012
+```
+
+
+
+
