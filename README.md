@@ -1,6 +1,6 @@
 # GeorgiaElections
 
-A database of state-wide voter turnout across 5000+ precincts and four election cycles. In collaboration with reporters at the Georgia News Lab, Georgia Public Broadcasting and the Atlanta Journal-Constitution. 
+A database of state-wide voter turnout across 5000+ precincts and four election cycles. Made in collaboration with reporters at the Georgia News Lab, Georgia Public Broadcasting and the Atlanta Journal-Constitution. 
 
 Published stories:
 * “At Least 8,000 Absentee Ballots In Georgia Rejected For Coming In Late.” Georgia Public Broadcasting, July 10, 2020. https://www.gpb.org/news/2020/07/10/at-least-8000-absentee-ballots-in-georgia-rejected-for-coming-in-late
